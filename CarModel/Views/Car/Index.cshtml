@@ -1,0 +1,131 @@
+﻿@model List<DAL.Entities.CarViewModel>
+
+
+<div class="mb-4">
+    <a class="btn btn-primary" asp-area="" asp-controller="Car" asp-action="SaveCar"> <i class="fa-solid fa-user-plus"></i> Add Car</a>
+</div>
+
+<div class="row mb-3">
+    <div class="table-responsive mb-4">
+        <table id="carDetail" class="">
+            <thead>
+                <tr>
+                    <th>Brand</th>
+                    <th>Class</th>
+                    <th>Model Name</th>
+                    <th>Model Code</th>
+                    <th>Description</th>
+                    <th>Feature</th>
+                    <th>Price</th>
+                    <th>Date Of Manufacturing</th>
+                    <th>Is Active</th>
+                    <th>Car Image</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+</div>
+
+@section scripts {
+    <link href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script>
+        var successMessage = '@TempData["SuccessMessage"]';
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: successMessage,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '@Url.Action("Index")';
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $('#carDetail').DataTable({
+                serverSide: true,
+                processing: true,
+                paging: true,
+                searching: true,
+                bSort: true,
+                info: false,
+                ajax: {
+                    url: "/Car/GetData",
+                    type: "POST",
+                    datatype: "json",
+                    contentType: "application/json; charset=utf-8",
+                    data: function (data) {
+                        console.log("Data sent to server:", data);
+                        console.log("Json Data sent to server:", JSON.stringify(data));
+                        return JSON.stringify(data);
+                    }
+                }, "columns": [
+                    { "data": "Brand", "name": "Brand", "autoWidth": true },
+                    { "data": "Class", "name": "Class", "autoWidth": true },
+                    { "data": "ModelName", "name": "ModelName", "autoWidth": true },
+                    { "data": "ModelCode", "name": "ModelCode" },
+                    { "data": "Description", "name": "Description" },
+                    { "data": "Feature", "name": "Feature" },
+                    { "data": "Price", "name": "Price", "autoWidth": true },
+                    { "data": "DateOfManufacturing", "name": "DateOfManufacturing", "autoWidth": true },
+                    { "data": "IsActive", "name": "" },
+                    {
+                        "data": "CarImage", "name": "CarImage", "autoWidth": true,
+                        "render": function (data, type, rowImg) {
+                            return '<img src="/uploads/' + rowImg.CarImage + '" alt = "" width = "40" height = "40" />';
+                        }
+                    },
+                    {
+                        "data": null, "name": "Action", "autoWidth": true,
+                        "render": function (data, type, row) {
+                            return `<button class="btn btn-success" onclick="EditCar('${row.Id}')"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                            <button class="btn btn-danger" onclick="DeleteCar('${row.Id}')"><i class="fa-solid fa-trash"></i></button>`;
+                        }
+                    }
+                ]
+            });
+        });
+
+        function EditCar(id) {
+            window.location.href = 'Car/EditCar?id=' + id;
+        }
+        function DeleteCar(id) {
+            console.log(id);
+            Swal.fire({
+                title: "Do you want to delete the Car Details?",
+                showCancelButton: true,
+                confirmButtonText: "Delete",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "DELETE",
+                        url: "Car/DeleteCar",
+                        data: { id: id },
+                        success: function (data) {
+                            if (data.success) {
+                                Swal.fire("Deleted!", data.message, "success").then(function () {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire("Error!", data.message, "error");
+                            }
+                        },
+                        error: function () {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "Something went wrong!"
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+    </script>
+}

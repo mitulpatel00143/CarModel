@@ -1,0 +1,168 @@
+﻿@model DAL.Entities.Car
+
+
+@{
+    ViewData["Title"] = "Edit Car";
+    var errorMessage = TempData["errorMessage"]?.ToString();
+}
+
+<h3>@ViewData["Title"]?.ToString()</h3>
+<hr />
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger">
+        <b>Error : </b>@errorMessage
+        <button type="button" class="btn-clase float-end" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row">
+    <form asp-action="EditCar" class="form-inline" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group row mb-3 visually-hidden">
+            <label asp-for="Id" class="col-2 control-label required-field"></label>
+            <div class="col-md-6">
+                <input asp-for="Id" class="form-control" />
+                <span asp-validation-for="Id" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row mb-3">
+            <label asp-for="Brand" class="col-2 control-label required-field"></label>
+            <div class="col-md-6">
+                <select asp-for="Brand" class="form-select">
+                    <option value="">Select Brand</option>
+                    <option value="Audi">Audi</option>
+                    <option value="Jaguar">Jaguar</option>
+                    <option value="Land rover">Land rover</option>
+                    <option value="Renault">Renault</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row mb-3">
+            <label asp-for="Class" class="col-2 control-label required-field"></label>
+            <div class="col-md-6">
+                <select asp-for="Class" class="form-select">
+                    <option value="">Select Class</option>
+                    <option value="A-Class">A-Class</option>
+                    <option value="B-Class">B-Class</option>
+                    <option value="C-Class">C-Class</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row mb-3">
+            <label asp-for="ModelName" class="col-2 control-label required-field"></label>
+            <div class="col-md-6">
+                <input asp-for="ModelName" class="form-control" placeholder="Model Name" required />
+                <span asp-validation-for="ModelName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row mb-3">
+            <label asp-for="ModelCode" class="col-2 control-label required-field"></label>
+            <div class="col-md-6">
+                <input asp-for="ModelCode" class="form-control" placeholder="Model Code" required />
+                <span asp-validation-for="ModelCode" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row mb-3">
+            <label asp-for="Description" class="col-2 control-label required-field"></label>
+            <div class="col-md-6">
+                <input asp-for="Description" class="form-control" placeholder="Description" required />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row mb-3">
+            <label asp-for="Feature" class="col-2 control-labe required-field"></label>
+            <div class="col-md-6">
+                <input asp-for="Feature" class="form-control" placeholder="Feature" required />
+                <span asp-validation-for="Feature" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row mb-3">
+            <label asp-for="Price" class="col-2 control-labe required-field"></label>
+            <div class="col-md-6">
+                <input asp-for="Price" class="form-control" placeholder="Price" required />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row mb-3">
+            <label asp-for="DateOfManufacturing" class="col-2 control-label required-field"></label>
+            <div class="col-md-6">
+                <input asp-for="DateOfManufacturing" class="form-control col-2" placeholder="Date Of Manufacturing" required />
+                <span asp-validation-for="DateOfManufacturing" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row mb-3">
+            <div class="col-sm-2">IsActive</div>
+            <div class="col-sm-10">
+                <div class="form-check">
+                    <input asp-for="IsActive" class="form-check-input" type="checkbox">
+                    <label asp-for="IsActive" class="form-check-label">IsActive</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row mb-3">
+            <label asp-for="CarImage" class="col-2 control-label"></label>
+            <div class="col-md-6">
+                <input asp-for="CarImage" class="form col-4" type="file" class="form-control-file" accept=".jpg,.png,image/*" onchange="displayFileName()" />
+                @Html.HiddenFor(model => model.CarImage)
+                @if (@Model.CarImage != null)
+                {
+                    <span id="fileNameDisplay">@Model.CarImage</span>
+                }
+            </div>
+        </div>
+
+        <div class="form-group row mb-3">
+            <div class="col-sm-10">
+                <button type="submit" class="btn btn-success"> Update </button>
+            </div>
+        </div>
+    </form>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
+
+<script>
+
+    var errorMessage = '@TempData["ErrorMessage"]';
+    var successMessage = '@TempData["SuccessMessage"]';
+
+    if (errorMessage) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: errorMessage,
+        });
+    }
+
+    if (successMessage) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: successMessage,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '@Url.Action("Index")';
+            }
+        });
+    }
+
+    function displayFileName() {
+        var input = document.getElementById('CarImage');
+        var fileNameDisplay = document.getElementById('fileNameDisplay');
+
+        fileNameDisplay.textContent = input.files.length > 0 ? input.files[0].name : '@Model.CarImage';
+    }
+    displayFileName();
+
+</script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
